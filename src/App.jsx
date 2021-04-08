@@ -6,6 +6,7 @@ import Searchbar from "./components/Searchbar";
 import ImageGallery from "./components/ImageGallery";
 import ImageGalleryItem from "./components/ImageGalleryItem";
 import Button from "./components/Button";
+import Modal from "./components/Modal";
 
 class App extends Component {
   state = {
@@ -13,12 +14,20 @@ class App extends Component {
     currentPage: 1,
     searchValue: "",
     isLoading: false,
+    showModal: false,
+    largeImageURL: "",
   };
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.searchValue !== this.state.searchValue) {
       this.fetchImages();
     }
+    // if (prevState.images.length < this.state.images.length) {
+    //   window.scrollTo({
+    //     top: document.documentElement.scrollHeight,
+    //     behavior: "smooth",
+    //   });
+    // }
   }
 
   onChangeValue = (value) => {
@@ -50,14 +59,21 @@ class App extends Component {
       .finally(() => this.setState({ isLoading: false }));
   };
 
+  toggleModal = (largeImageURL) => {
+    this.setState(({ showModal }) => ({
+      showModal: !showModal,
+      largeImageURL,
+    }));
+  };
+
   render() {
-    const { images, isLoading } = this.state;
+    const { images, isLoading, showModal, largeImageURL } = this.state;
 
     return (
       <div>
         <Searchbar onSubmit={this.onChangeValue} />
         <ImageGallery>
-          <ImageGalleryItem images={images} />
+          <ImageGalleryItem images={images} onShowModal={this.toggleModal} />
         </ImageGallery>
 
         {isLoading && (
@@ -73,6 +89,10 @@ class App extends Component {
         )}
         {images.length > 0 && !isLoading && (
           <Button fetchImages={this.fetchImages} />
+        )}
+
+        {showModal && (
+          <Modal onClose={this.toggleModal} largeImageURL={largeImageURL} />
         )}
       </div>
     );
